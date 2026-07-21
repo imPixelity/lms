@@ -21,7 +21,7 @@
       ];
 
       shellHook = ''
-        export DATABASE_URL=postgres://photon:password@localhost:5432/lms
+        export DATABASE_URL=postgres://photon:password@localhost:5432/lms?sslmode=disable
       '';
     };
   };
