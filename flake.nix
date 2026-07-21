@@ -15,7 +15,9 @@
         gopls
         golangci-lint
         delve
-        go-migrate
+        (go-migrate.overrideAttrs {
+          tags = [ "postgres" ];
+        })
       ];
 
       shellHook = ''
