@@ -13,12 +13,12 @@ func NewConn(ctx context.Context) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
-	pool, err := pgxpool.NewWithConfig(context.Background(), cfg)
+	pool, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := pool.Ping(context.Background()); err != nil {
+	if err := pool.Ping(ctx); err != nil {
 		return nil, err
 	}
 
