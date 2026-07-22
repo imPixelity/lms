@@ -28,7 +28,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("TODO %v", err)
 	}
 
-	resp := UserResponse{
+	resp := userResponse{
 		ID:       user.id,
 		Username: user.username,
 		Email:    user.email,

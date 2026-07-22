@@ -1,12 +1,12 @@
 package user
 
-type CreateUserRequest struct {
+type createUserRequest struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-type UpdateUserRequest struct {
+type updateUserRequest struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
 }
