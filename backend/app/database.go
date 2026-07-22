@@ -2,18 +2,22 @@ package app
 
 import (
 	"context"
-	"os"
+	"lms/config"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewConn(ctx context.Context) (*pgxpool.Pool, error) {
-	cfg, err := pgxpool.ParseConfig(os.Getenv("DATABASE_URL"))
+func NewConn(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	pgxCfg, err := pgxpool.ParseConfig(cfg.DatabaseURL)
 	if err != nil {
 		return nil, err
 	}
 
-	pool, err := pgxpool.NewWithConfig(ctx, cfg)
+	pool, err := pgxpool.NewWithConfig(ctx, pgxCfg)
 	if err != nil {
 		return nil, err
 	}

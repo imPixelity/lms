@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"lms/app"
+	"lms/config"
 	"log"
 	"net/http"
 	"os"
@@ -16,7 +17,12 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	conn, err := app.NewConn(ctx)
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("unable to load config: %v", err)
+	}
+
+	conn, err := app.NewConn(ctx, cfg)
 	if err != nil {
 		log.Fatalf("unable to connect to database: %v", err)
 	}
@@ -25,7 +31,7 @@ func main() {
 	router := app.NewRouter()
 
 	srv := &http.Server{
-		Addr:              ":8000",
+		Addr:              ":" + cfg.Port,
 		Handler:           router,
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
