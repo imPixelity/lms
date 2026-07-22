@@ -6,7 +6,6 @@ import (
 )
 
 type Config struct {
-	Env         string
 	Port        string
 	DatabaseURL string
 }
@@ -18,7 +17,6 @@ func Load() (*Config, error) {
 	}
 
 	return &Config{
-		Env:         getEnv("ENV", "dev"),
 		Port:        getEnv("PORT", "8080"),
 		DatabaseURL: dbURL,
 	}, nil

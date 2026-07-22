@@ -5,6 +5,7 @@ import (
 	"errors"
 	"lms/app"
 	"lms/config"
+	"lms/internal/user"
 	"log"
 	"net/http"
 	"os"
@@ -28,7 +29,11 @@ func main() {
 	}
 	defer conn.Close()
 
-	router := app.NewRouter()
+	userRepo := user.NewRepo(conn)
+	userSvc := user.NewService(userRepo)
+	userHandler := user.NewHandler(userSvc)
+
+	router := app.NewRouter(userHandler)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
