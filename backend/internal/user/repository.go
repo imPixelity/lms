@@ -32,9 +32,6 @@ func (r *repository) Create(ctx context.Context, user *User) error {
 		RETURNING id
 	`
 	err := r.db.QueryRow(ctx, query, user.Email, user.Username, user.Password).Scan(&user.ID)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return fmt.Errorf("TODO %w", err)
-	}
 	if err != nil {
 		return fmt.Errorf("TODO %w", err)
 	}
