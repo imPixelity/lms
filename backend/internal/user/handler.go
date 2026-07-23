@@ -15,30 +15,48 @@ func NewHandler(svc Service) *Handler {
 	return &Handler{svc: svc}
 }
 
-func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	id, err := strconv.Atoi(r.PathValue("userId"))
-	if err != nil {
+	var req CreateUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Fatalf("TODO %v", err)
 	}
 
-	user, err := h.svc.Get(r.Context(), id)
-	if err != nil {
+	if err := req.Validate(); err != nil {
 		log.Fatalf("TODO %v", err)
 	}
 
-	resp := userResponse{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
+	user := req.ToModel()
+	if err := h.svc.Create(r.Context(), user); err != nil {
+		log.Fatalf("TODO %v", err)
 	}
 
+	resp := NewUserResponse(user)
 	b, err := json.Marshal(resp)
 	if err != nil {
 		log.Fatalf("TODO %v", err)
 	}
+	w.Write(b)
+}
 
-	w.WriteHeader(http.StatusOK)
+func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	id, err := strconv.ParseInt(r.PathValue("userId"), 10, 64)
+	if err != nil {
+		log.Fatalf("TODO %v", err)
+	}
+
+	user, err := h.svc.FindByID(r.Context(), id)
+	if err != nil {
+		log.Fatalf("TODO %v", err)
+	}
+
+	resp := NewUserResponse(user)
+	b, err := json.Marshal(resp)
+	if err != nil {
+		log.Fatalf("TODO %v", err)
+	}
 	w.Write(b)
 }

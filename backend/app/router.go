@@ -13,7 +13,7 @@ func NewRouter(h *user.Handler) *http.ServeMux {
 
 	// mux.HandleFunc("GET /api/users", nil)
 	mux.HandleFunc("GET /api/users/{userId}", h.Get)
-	// mux.HandleFunc("POST /api/users", nil)
+	mux.HandleFunc("POST /api/users", h.Create)
 	// mux.HandleFunc("PUT /api/users/{userId}", nil)
 	// mux.HandleFunc("DELETE /api/users/{userId}", nil)
 
