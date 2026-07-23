@@ -37,9 +37,13 @@ func (s *service) FindByID(ctx context.Context, userID int64) (*User, error) {
 }
 
 func (s *service) List(ctx context.Context, cursor int64, limit int) ([]User, bool, error) {
-	users, hasMore, err := s.repo.List(ctx, cursor, limit)
+	users, err := s.repo.List(ctx, cursor, limit+1)
 	if err != nil {
 		return nil, false, fmt.Errorf("TODO %w", err)
+	}
+	hasMore := len(users) > limit
+	if hasMore {
+		users = users[:limit]
 	}
 	return users, hasMore, nil
 }

@@ -64,18 +64,22 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	q := r.URL.Query()
-	cursor, err := strconv.ParseInt(q.Get("cursor"), 10, 64)
-	if err != nil {
-		log.Fatalf("TODO %v", err)
-	}
-
-	limit := 10
-	if v := q.Get("limit"); v != "" {
-		limit, err = strconv.Atoi(v)
+	var cursor int64
+	if raw := r.URL.Query().Get("cursor"); raw != "" {
+		parsed, err := strconv.ParseInt(raw, 10, 64)
 		if err != nil {
 			log.Fatalf("TODO %v", err)
 		}
+		cursor = parsed
+	}
+
+	limit := 20
+	if raw := r.URL.Query().Get("limit"); raw != "" {
+		parsed, err := strconv.Atoi(raw)
+		if err != nil {
+			log.Fatalf("TODO %v", err)
+		}
+		limit = parsed
 	}
 
 	users, hasMore, err := h.svc.List(r.Context(), cursor, limit)

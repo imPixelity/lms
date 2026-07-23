@@ -16,7 +16,7 @@ type repository struct {
 type Repository interface {
 	Create(ctx context.Context, user *User) error
 	FindByID(ctx context.Context, userID int64) (*User, error)
-	List(ctx context.Context, cursor int64, limit int) ([]User, bool, error)
+	List(ctx context.Context, cursor int64, limit int) ([]User, error)
 	Update(ctx context.Context, user *User) error
 	Delete(ctx context.Context, userID int64) error
 }
@@ -86,8 +86,7 @@ func (r *repository) Delete(ctx context.Context, userID int64) error {
 	return nil
 }
 
-func (r *repository) List(ctx context.Context, cursor int64, limit int) ([]User, bool, error) {
-	fetchLimit := limit + 1
+func (r *repository) List(ctx context.Context, cursor int64, limit int) ([]User, error) {
 	query := `
 		SELECT id, email, username
 		FROM users
@@ -95,29 +94,24 @@ func (r *repository) List(ctx context.Context, cursor int64, limit int) ([]User,
 		ORDER BY id
 		LIMIT $2
 	`
-	rows, err := r.db.Query(ctx, query, cursor, fetchLimit)
+	rows, err := r.db.Query(ctx, query, cursor, limit)
 	if err != nil {
-		return nil, false, fmt.Errorf("TODO %w", err)
+		return nil, fmt.Errorf("TODO %w", err)
 	}
 	defer rows.Close()
 
-	users := make([]User, 0, fetchLimit)
+	users := make([]User, 0, limit)
 	for rows.Next() {
 		var user User
 		if err := rows.Scan(&user.ID, &user.Email, &user.Username); err != nil {
-			return nil, false, fmt.Errorf("TODO %w", err)
+			return nil, fmt.Errorf("TODO %w", err)
 		}
 		users = append(users, user)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, false, fmt.Errorf("TODO %w", err)
+		return nil, fmt.Errorf("TODO %w", err)
 	}
 
-	hasMore := len(users) > limit
-	if hasMore {
-		users = users[:limit]
-	}
-
-	return users, hasMore, nil
+	return users, nil
 }
