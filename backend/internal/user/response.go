@@ -6,11 +6,11 @@ type userResponse struct {
 	Username string `json:"username"`
 }
 
-func newUserResponse(u *user) userResponse {
+func newUserResponse(u *User) userResponse {
 	return userResponse{
-		ID:       u.id,
-		Email:    u.email,
-		Username: u.username,
+		ID:       u.ID,
+		Email:    u.Email,
+		Username: u.Username,
 	}
 }
 
@@ -19,7 +19,7 @@ type userListResponse struct {
 	Total int            `json:"total"`
 }
 
-func NewUserListResponse(users []user) userListResponse {
+func NewUserListResponse(users []User) userListResponse {
 	out := make([]userResponse, len(users))
 	for i, u := range users {
 		out[i] = newUserResponse(&u)

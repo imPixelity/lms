@@ -23,13 +23,13 @@ func main() {
 		log.Fatalf("unable to load config: %v", err)
 	}
 
-	conn, err := app.NewConn(ctx, cfg)
+	pool, err := app.NewPool(ctx, cfg)
 	if err != nil {
 		log.Fatalf("unable to connect to database: %v", err)
 	}
-	defer conn.Close()
+	defer pool.Close()
 
-	userRepo := user.NewRepo(conn)
+	userRepo := user.NewRepository(pool)
 	userSvc := user.NewService(userRepo)
 	userHandler := user.NewHandler(userSvc)
 

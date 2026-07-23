@@ -8,10 +8,10 @@ import (
 )
 
 type Handler struct {
-	svc *service
+	svc Service
 }
 
-func NewHandler(svc *service) *Handler {
+func NewHandler(svc Service) *Handler {
 	return &Handler{svc: svc}
 }
 
@@ -23,15 +23,15 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("TODO %v", err)
 	}
 
-	user, err := h.svc.get(r.Context(), id)
+	user, err := h.svc.Get(r.Context(), id)
 	if err != nil {
 		log.Fatalf("TODO %v", err)
 	}
 
 	resp := userResponse{
-		ID:       user.id,
-		Username: user.username,
-		Email:    user.email,
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
 	}
 
 	b, err := json.Marshal(resp)

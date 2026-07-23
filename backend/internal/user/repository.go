@@ -7,20 +7,112 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type repo struct {
+type repository struct {
 	db *pgxpool.Pool
 }
 
-func NewRepo(db *pgxpool.Pool) *repo {
-	return &repo{db: db}
+type Repository interface {
+	Create(ctx context.Context, user *User) error
+	FindByID(ctx context.Context, userID int) (*User, error)
+	List(ctx context.Context, limit, offset int) ([]User, bool, error)
+	Update(ctx context.Context, user *User) error
+	Delete(ctx context.Context, userID int) error
 }
 
-func (r *repo) findById(ctx context.Context, id int) (user, error) {
-	var u user
-	sqlStr := "SELECT id, email, username FROM users WHERE id = $1"
-	err := r.db.QueryRow(ctx, sqlStr, id).Scan(&u.id, &u.email, &u.username)
+func NewRepository(db *pgxpool.Pool) Repository {
+	return &repository{db: db}
+}
+
+func (r *repository) Create(ctx context.Context, user *User) error {
+	query := `
+		INSERT INTO users (email, username, password)
+		VALUES ($1, $2, $3)
+		RETURNING id
+	`
+	err := r.db.QueryRow(ctx, query, user.Email, user.Username, user.Password).Scan(user.ID)
 	if err != nil {
-		return user{}, fmt.Errorf("TODO %w", err)
+		return fmt.Errorf("TODO %w", err)
 	}
-	return u, nil
+	return nil
+}
+
+func (r *repository) FindByID(ctx context.Context, userID int) (*User, error) {
+	var user User
+	query := `
+		SELECT id, email, username 
+		FROM users 
+		WHERE id = $1
+	`
+	err := r.db.QueryRow(ctx, query, userID).Scan(&user.ID, &user.Email, &user.Username)
+	if err != nil {
+		return nil, fmt.Errorf("TODO %w", err)
+	}
+	return &user, nil
+}
+
+func (r *repository) Update(ctx context.Context, user *User) error {
+	query := `
+		UPDATE users
+		SET email = $1, username = $2, password = $3
+		WHERE id = $4
+	`
+	tag, err := r.db.Exec(ctx, query, user.Email, user.Username, user.Password, user.ID)
+	if err != nil {
+		return fmt.Errorf("TODO %w", err)
+	}
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("TODO %w", err)
+	}
+	return nil
+}
+
+func (r *repository) Delete(ctx context.Context, userID int) error {
+	query := `
+		DELETE FROM users
+		WHERE id = $1
+	`
+	tag, err := r.db.Exec(ctx, query, userID)
+	if err != nil {
+		return fmt.Errorf("TODO %w", err)
+	}
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("TODO %w", err)
+	}
+	return nil
+}
+
+func (r *repository) List(ctx context.Context, cursor, limit int) ([]User, bool, error) {
+	fetchLimit := limit + 1
+	query := `
+		SELECT id, email, username
+		FROM users
+		WHERE id > $1
+		ORDER BY id
+		LIMIT $2
+	`
+	rows, err := r.db.Query(ctx, query, cursor, fetchLimit)
+	if err != nil {
+		return nil, false, fmt.Errorf("TODO %w", err)
+	}
+	defer rows.Close()
+
+	users := make([]User, 0, fetchLimit)
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.ID, &user.Email, &user.Username); err != nil {
+			return nil, false, fmt.Errorf("TODO %w", err)
+		}
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, false, fmt.Errorf("TODO %w", err)
+	}
+
+	hasMore := len(users) > limit
+	if hasMore {
+		users = users[:limit]
+	}
+
+	return users, hasMore, nil
 }
