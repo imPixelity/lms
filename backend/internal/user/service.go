@@ -16,7 +16,7 @@ func NewService(repo Repository) Service {
 type Service interface {
 	Create(ctx context.Context, user *User) error
 	FindByID(ctx context.Context, userID int64) (*User, error)
-	// List(ctx context.Context, cursor, limit int) ([]User, error)
+	List(ctx context.Context, cursor int64, limit int) ([]User, bool, error)
 	Update(ctx context.Context, user *User) error
 	Delete(ctx context.Context, userID int64) error
 }
@@ -34,6 +34,14 @@ func (s *service) FindByID(ctx context.Context, userID int64) (*User, error) {
 		return nil, fmt.Errorf("TODO %w", err)
 	}
 	return user, nil
+}
+
+func (s *service) List(ctx context.Context, cursor int64, limit int) ([]User, bool, error) {
+	users, hasMore, err := s.repo.List(ctx, cursor, limit)
+	if err != nil {
+		return nil, false, fmt.Errorf("TODO %w", err)
+	}
+	return users, hasMore, nil
 }
 
 func (s *service) Update(ctx context.Context, user *User) error {

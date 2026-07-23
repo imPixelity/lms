@@ -22,3 +22,14 @@ type UpdateUserRequest struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
 }
+
+func (r *UpdateUserRequest) Validate() error {
+	return nil
+}
+
+func (r *UpdateUserRequest) ToModel() *User {
+	return &User{
+		Email: r.Email,
+		Username: r.Username,
+	}
+}
