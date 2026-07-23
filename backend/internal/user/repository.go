@@ -13,10 +13,10 @@ type repository struct {
 
 type Repository interface {
 	Create(ctx context.Context, user *User) error
-	FindByID(ctx context.Context, userID int) (*User, error)
-	List(ctx context.Context, limit, offset int) ([]User, bool, error)
+	FindByID(ctx context.Context, userID int64) (*User, error)
+	List(ctx context.Context, cursor int64, limit int) ([]User, bool, error)
 	Update(ctx context.Context, user *User) error
-	Delete(ctx context.Context, userID int) error
+	Delete(ctx context.Context, userID int64) error
 }
 
 func NewRepository(db *pgxpool.Pool) Repository {
@@ -36,7 +36,7 @@ func (r *repository) Create(ctx context.Context, user *User) error {
 	return nil
 }
 
-func (r *repository) FindByID(ctx context.Context, userID int) (*User, error) {
+func (r *repository) FindByID(ctx context.Context, userID int64) (*User, error) {
 	var user User
 	query := `
 		SELECT id, email, username 
@@ -66,7 +66,7 @@ func (r *repository) Update(ctx context.Context, user *User) error {
 	return nil
 }
 
-func (r *repository) Delete(ctx context.Context, userID int) error {
+func (r *repository) Delete(ctx context.Context, userID int64) error {
 	query := `
 		DELETE FROM users
 		WHERE id = $1
@@ -81,7 +81,7 @@ func (r *repository) Delete(ctx context.Context, userID int) error {
 	return nil
 }
 
-func (r *repository) List(ctx context.Context, cursor, limit int) ([]User, bool, error) {
+func (r *repository) List(ctx context.Context, cursor int64, limit int) ([]User, bool, error) {
 	fetchLimit := limit + 1
 	query := `
 		SELECT id, email, username
