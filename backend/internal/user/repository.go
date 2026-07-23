@@ -2,8 +2,10 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -30,6 +32,9 @@ func (r *repository) Create(ctx context.Context, user *User) error {
 		RETURNING id
 	`
 	err := r.db.QueryRow(ctx, query, user.Email, user.Username, user.Password).Scan(&user.ID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return fmt.Errorf("TODO %w", err)
+	}
 	if err != nil {
 		return fmt.Errorf("TODO %w", err)
 	}
@@ -44,6 +49,9 @@ func (r *repository) FindByID(ctx context.Context, userID int64) (*User, error) 
 		WHERE id = $1
 	`
 	err := r.db.QueryRow(ctx, query, userID).Scan(&user.ID, &user.Email, &user.Username)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("TODO %w", err)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("TODO %w", err)
 	}
