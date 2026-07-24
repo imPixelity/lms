@@ -16,6 +16,8 @@ type repository struct {
 type Repository interface {
 	Create(ctx context.Context, user *User) error
 	FindByID(ctx context.Context, userID int64) (*User, error)
+	FindByEmail(ctx context.Context, email string) (*User, error)
+	FindByUsername(ctx context.Context, username string) (*User, error)
 	List(ctx context.Context, cursor int64, limit int) ([]User, error)
 	Update(ctx context.Context, user *User) error
 	Delete(ctx context.Context, userID int64) error
@@ -47,6 +49,44 @@ func (r *repository) FindByID(ctx context.Context, userID int64) (*User, error) 
 		WHERE id = $1
 	`
 	err := r.db.QueryRow(ctx, query, userID).Scan(&user.ID, &user.Email, &user.Username)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("TODO %w", err)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("TODO %w", err)
+	}
+
+	return &user, nil
+}
+
+func (r *repository) FindByEmail(ctx context.Context, email string) (*User, error) {
+	var user User
+	query := `
+		SELECT id, email, username 
+		FROM users 
+		WHERE email = $1
+	`
+	err := r.db.QueryRow(ctx, query, email).Scan(&user.ID, &user.Email, &user.Username)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("TODO %w", err)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("TODO %w", err)
+	}
+
+	return &user, nil
+}
+
+func (r *repository) FindByUsername(ctx context.Context, username string) (*User, error) {
+	var user User
+	query := `
+		SELECT id, email, username 
+		FROM users 
+		WHERE username = $1
+	`
+	err := r.db.QueryRow(ctx, query, username).Scan(&user.ID, &user.Email, &user.Username)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("TODO %w", err)
 	}
