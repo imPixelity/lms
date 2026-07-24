@@ -35,6 +35,7 @@ func (r *repository) Create(ctx context.Context, user *User) error {
 	if err != nil {
 		return fmt.Errorf("TODO %w", err)
 	}
+
 	return nil
 }
 
@@ -49,9 +50,11 @@ func (r *repository) FindByID(ctx context.Context, userID int64) (*User, error) 
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("TODO %w", err)
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf("TODO %w", err)
 	}
+
 	return &user, nil
 }
 
@@ -65,9 +68,11 @@ func (r *repository) Update(ctx context.Context, user *User) error {
 	if err != nil {
 		return fmt.Errorf("TODO %w", err)
 	}
+
 	if tag.RowsAffected() == 0 {
 		return fmt.Errorf("TODO %w", err)
 	}
+
 	return nil
 }
 
@@ -80,9 +85,11 @@ func (r *repository) Delete(ctx context.Context, userID int64) error {
 	if err != nil {
 		return fmt.Errorf("TODO %w", err)
 	}
+
 	if tag.RowsAffected() == 0 {
 		return fmt.Errorf("TODO %w", err)
 	}
+
 	return nil
 }
 
