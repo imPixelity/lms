@@ -3,6 +3,8 @@ package user
 import (
 	"context"
 	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type service struct {
@@ -22,9 +24,16 @@ type Service interface {
 }
 
 func (s *service) Create(ctx context.Context, user *User) error {
+	b, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
+	if err != nil {
+		return fmt.Errorf("TODO %w", err)
+	}
+	user.Password = string(b)
+
 	if err := s.repo.Create(ctx, user); err != nil {
 		return fmt.Errorf("TODO %w", err)
 	}
+
 	return nil
 }
 
